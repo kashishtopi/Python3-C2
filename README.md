@@ -1,3 +1,3 @@
 
 ## t0piC2 - Python C2 Framework
-![Screenshot 2023-05-02 202609](https://user-images.githubusercontent.com/46081558/235820354-0ddffa9f-06bc-46a7-bf73-32a701fbdd40.jpg)
+<img width="500" alt="image" src="https://user-images.githubusercontent.com/46081558/235820700-869db35e-96ac-40bf-9e60-8fb1b4d5e6fc.png">
