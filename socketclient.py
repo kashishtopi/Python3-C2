@@ -47,8 +47,8 @@ def session_handler():
 if __name__ == '__main__':
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        host_ip = '192.168.106.1'
-        host_port = 2222
+        host_ip = '<IP>' # Change IP
+        host_port = 2222 # Change Port
         session_handler()
     except IndexError:
         print('[-] Command line argument(s) missing, Please try again.')

